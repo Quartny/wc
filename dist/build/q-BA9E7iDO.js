@@ -1,1 +1,0 @@
-import{_ as e}from"./q-Ctqmri9H.js";import{g as o,q as i}from"./q-Bu7b94nk.js";const s=new Map,a={uuid:"zunex-inbuild",name:"Zunex InBuild Wallet",rdns:"cdn.zunex.wallet",icon:"zunex"},l=o(i(()=>e(()=>import("./q-MMmuNEOt.js").then(n=>n.i),[]),"s_sdBEEYYzpck"));export{l as H,a as i,s as p};
