@@ -45,6 +45,7 @@
     var style = document.createElement('style');
     style.id = 'zunex-runtime-styles';
     style.textContent = '.zunex-account-menu{position:relative}.zunex-account-button{display:flex;align-items:center;gap:8px;padding:11px 15px;border:1px solid rgba(131,216,208,.3);border-radius:999px;background:rgba(131,216,208,.13);color:#83d8d0;font:12px monospace;cursor:pointer}.zunex-dot{width:7px;height:7px;border-radius:50%;background:#83d8d0}.zunex-chevron{width:16px;height:16px;fill:currentColor}.zunex-popover{position:absolute;z-index:20;top:calc(100% + 12px);right:0;width:270px;padding:14px;border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(16,21,39,.97);box-shadow:0 18px 45px rgba(0,0,0,.32)}.zunex-popover[hidden]{display:none}.zunex-blockie{display:block;width:100%;height:92px;object-fit:cover;border-radius:9px;background:#252d44}.zunex-full-address{display:flex;flex-direction:column;gap:7px;padding:14px 2px}.zunex-full-address span{color:#9294a2;font:10px monospace;text-transform:uppercase}.zunex-full-address strong{overflow-wrap:anywhere;color:#f5f3ec;font:11px/1.5 monospace}.zunex-actions{display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}.zunex-icon-action{display:grid;width:38px;height:34px;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:7px;background:rgba(255,255,255,.04);color:#83d8d0;cursor:pointer}.zunex-icon-action svg{width:17px;height:17px;fill:currentColor}.zunex-disconnect{color:#ff785f}.zunex-backdrop{position:fixed;z-index:30;inset:0;display:grid;place-items:center;padding:20px;background:rgba(3,5,12,.78);backdrop-filter:blur(15px)}.zunex-modal{width:min(100%,450px);padding:30px;border:1px solid rgba(255,255,255,.2);border-radius:18px;background:linear-gradient(145deg,rgba(34,42,67,.94),rgba(12,16,31,.98));color:#f5f3ec}.zunex-modal-head{display:flex;justify-content:space-between}.zunex-modal h2{margin:0;font:700 28px sans-serif;letter-spacing:-1px}.zunex-close{display:grid;width:32px;height:32px;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(255,255,255,.05);color:inherit;cursor:pointer}.zunex-close svg{width:18px;height:18px}.zunex-subtitle{margin:9px 0 23px;color:#9294a2;font:12px sans-serif}.zunex-wallet-list{display:grid;gap:9px}.zunex-wallet{display:flex;align-items:center;gap:13px;width:100%;padding:14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.055);color:#f5f3ec;text-align:left;cursor:pointer}.zunex-wallet-icon{display:grid;width:39px;height:39px;flex:0 0 39px;place-items:center;overflow:hidden;border-radius:11px;background:#31384e;font-weight:800}.zunex-wallet-icon img{width:100%;height:100%;object-fit:cover}.zunex-wallet-icon svg{width:21px;height:21px;fill:currentColor}.zunex-inbuild{color:#06141b;background:#83d8d0}.zunex-wallet-info{display:flex;flex:1;flex-direction:column;gap:4px}.zunex-wallet-info strong{font:700 13px sans-serif}.zunex-arrow{display:grid;place-items:center;color:#ff785f}.zunex-arrow svg{width:20px;height:20px}.zunex-empty{padding:27px 18px;border:1px dashed rgba(255,255,255,.2);border-radius:10px;color:#9294a2;text-align:center;font:13px sans-serif}.zunex-empty small{display:block;margin-top:8px;font:10px/1.6 monospace}.zunex-error{margin:14px 0 0;color:#ff785f;font:11px sans-serif}@media(max-width:780px){.zunex-popover{right:-8px;width:min(270px,calc(100vw - 40px))}.zunex-modal{padding:24px}}';
+    style.textContent += '.zunex-backdrop{background:rgba(255,255,255,.045);backdrop-filter:blur(22px) saturate(145%);-webkit-backdrop-filter:blur(22px) saturate(145%)}.zunex-modal{border-color:rgba(255,255,255,.34);background:linear-gradient(145deg,rgba(255,255,255,.19),rgba(255,255,255,.08));box-shadow:0 24px 80px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(28px) saturate(155%);-webkit-backdrop-filter:blur(28px) saturate(155%)}';
     document.head.appendChild(style);
   }
   function walletIcon(wallet) { return wallet.icon === 'zunex' ? '<span class="zunex-wallet-icon zunex-inbuild">' + inBuildIcon + '</span>' : '<span class="zunex-wallet-icon">' + (wallet.icon ? '<img src="' + escapeHtml(wallet.icon) + '" alt="">' : escapeHtml(wallet.name.slice(0, 1))) + '</span>'; }
@@ -55,7 +56,21 @@
     var slot = document.getElementById(options.accountSlot || 'account-slot');
     var modalRoot = document.getElementById(options.modalRoot || 'modal-root');
     var count = document.getElementById(options.count || 'wallet-count');
-    function closeModal() { modalRoot.innerHTML = ''; }
+    var scrollLock = null;
+    function lockScroll() {
+      if (scrollLock) return;
+      scrollLock = { overflow: document.body.style.overflow, paddingRight: document.body.style.paddingRight };
+      var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + 'px';
+    }
+    function unlockScroll() {
+      if (!scrollLock) return;
+      document.body.style.overflow = scrollLock.overflow;
+      document.body.style.paddingRight = scrollLock.paddingRight;
+      scrollLock = null;
+    }
+    function closeModal() { modalRoot.innerHTML = ''; unlockScroll(); }
     function renderAccount() {
       if (!account) { slot.innerHTML = '<button class="connect-button compact" data-zunex-open>Connect wallet <span>↗</span></button>'; slot.querySelector('[data-zunex-open]').onclick = openModal; return; }
       slot.innerHTML = '<div class="zunex-account-menu"><button class="zunex-account-button" data-toggle><span class="zunex-dot"></span>' + escapeHtml(shortAddress(account.address)) + chevronIcon + '</button><div class="zunex-popover" data-popover hidden><img class="zunex-blockie" src="https://blockies.vercel.app/address:' + encodeURIComponent(account.address) + '" alt="Wallet identicon"><div class="zunex-full-address"><span>Connected wallet</span><strong>' + escapeHtml(account.address) + '</strong></div><div class="zunex-actions"><button class="zunex-icon-action" data-copy aria-label="Copy address">' + copyIcon + '</button><button class="zunex-icon-action zunex-disconnect" data-disconnect aria-label="Disconnect wallet">↪</button></div></div></div>';
@@ -79,6 +94,7 @@
     }
     function openModal() {
       var list = getWallets();
+      lockScroll();
       modalRoot.innerHTML = '<div class="zunex-backdrop" data-backdrop><section class="zunex-modal" role="dialog" aria-modal="true"><div class="zunex-modal-head"><h2>Connect a wallet</h2><button class="zunex-close" data-close aria-label="Close">' + closeIcon + '</button></div><p class="zunex-subtitle">Choose an installed wallet to continue.</p><div class="zunex-wallet-list">' + (list.length ? list.map(function (wallet) { return '<button class="zunex-wallet" data-wallet="' + escapeHtml(wallet.uuid) + '">' + walletIcon(wallet) + '<span class="zunex-wallet-info"><strong>' + escapeHtml(wallet.name) + '</strong></span><span class="zunex-arrow">' + externalIcon + '</span></button>'; }).join('') : '<div class="zunex-empty"><strong>No wallet extensions found</strong><small>Install a compatible wallet extension, then reopen this panel.</small></div>') + '</div><p class="zunex-error" data-error></p></section></div>';
       modalRoot.querySelector('[data-close]').onclick = closeModal;
       modalRoot.querySelector('[data-backdrop]').onclick = function (event) { if (event.target === event.currentTarget) closeModal(); };
