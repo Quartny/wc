@@ -65,6 +65,8 @@ The InBuild option is off by default. Enable it explicitly:
 ```
 If `inBuildSrc` is omitted, the runtime first checks for an already available browser provider in `window.Zunex.inBuildProvider`, `window.ZunexInBuildProvider`, `window.inBuildProvider`, or `window.ethereum`. If none is available, it shows an error explaining that `inBuildSrc` must be configured.
 
+When neither a browser provider nor `inBuildSrc` is available, the connection dialog guides the user to reopen the page inside a wallet or InBuild browser. This prevents a wallet-less in-app browser from failing with an unexplained provider error.
+
 The runtime also reads the latest configuration when the InBuild row is selected.
 
 The connected-account popover toggles from the address button and closes when the user taps anywhere outside the account control. Copy and disconnect actions use accessible labels without native browser title tooltips.
