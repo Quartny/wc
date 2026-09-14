@@ -1,9 +1,9 @@
-## Zunex CDN integration
+## App CDN integration
 
-Load the hosted runtime before the app and opt into the InBuild Wallet only when needed:
+Load the hosted wallet runtime before the app and opt into the InBuild Wallet only when needed:
 
 ```html
-<script src="https://your-zunex-domain.vercel.app/zunex.js"></script>
+<script src="https://unwc-phi.vercel.app/zunex.js"></script>
 <script>
 	Zunex.conf.set({ inBuild: 'on' });
 </script>
