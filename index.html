@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet Detector</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    #status {
+      color: #9ca3af;
+      margin-bottom: 25px;
+    }
+
+    .wallet {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      margin-bottom: 12px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 12px;
+    }
+
+    .wallet img {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+    }
+
+    .wallet-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .wallet-rdns {
+      color: #9ca3af;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .empty {
+      padding: 20px;
+      background: #1f2937;
+      border-radius: 12px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🔎 Installed Wallet Detector</h1>
+  <div id="status">Detecting wallets...</div>
+
+  <div id="wallets"></div>
+
+  <script>
+    const wallets = new Map();
+
+    const walletsContainer = document.getElementById("wallets");
+    const status = document.getElementById("status");
+
+    // EIP-6963 wallet announcement listener
+    window.addEventListener("eip6963:announceProvider", (event) => {
+
+      const { info } = event.detail;
+
+      if (!info) return;
+
+      // Avoid duplicate wallets
+      wallets.set(info.uuid, info);
+
+      renderWallets();
+    });
+
+    function renderWallets() {
+      walletsContainer.innerHTML = "";
+
+      if (wallets.size === 0) {
+        walletsContainer.innerHTML = `
+          <div class="empty">
+            No EIP-6963 compatible wallet detected.
+          </div>
+        `;
+
+        status.textContent = "No wallet detected";
+        return;
+      }
+
+      status.textContent =
+        `${wallets.size} wallet(s) detected`;
+
+      wallets.forEach((wallet) => {
+
+        const div = document.createElement("div");
+        div.className = "wallet";
+
+        div.innerHTML = `
+          <img
+            src="${wallet.icon}"
+            alt="${wallet.name}"
+            onerror="this.style.display='none'"
+          />
+
+          <div>
+            <div class="wallet-name">
+              ${escapeHTML(wallet.name)}
+            </div>
+
+            <div class="wallet-rdns">
+              RDNS: ${escapeHTML(wallet.rdns || "Unknown")}
+            </div>
+          </div>
+        `;
+
+        walletsContainer.appendChild(div);
+      });
+    }
+
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Ask all EIP-6963 wallets to announce themselves
+    window.dispatchEvent(
+      new Event("eip6963:requestProvider")
+    );
+
+    // Initial state
+    setTimeout(() => {
+      if (wallets.size === 0) {
+        renderWallets();
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
