@@ -16,11 +16,13 @@
   function escapeHtml(value) { return String(value).replace(/[&<>"']/g, function (char) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[char]; }); }
   function shortAddress(value) { return value.length > 10 ? value.slice(0, 5) + '...' + value.slice(-5) : value; }
   function getWallets() { return Array.from(wallets.values()).concat(config.inBuild === 'on' ? [inBuild] : []); }
+  function findBrowserInBuildProvider() { return window.ZunexInBuildProvider || window.inBuildProvider || window.ethereum; }
   function loadInBuildProvider() {
-    if (window.Zunex.inBuildProvider) return Promise.resolve(window.Zunex.inBuildProvider);
+    var browserProvider = window.Zunex.inBuildProvider || findBrowserInBuildProvider();
+    if (browserProvider) return Promise.resolve(browserProvider);
     if (inBuildLoad) return inBuildLoad;
     var source = config.inBuildSrc || runtime.inBuildSrc;
-    if (!source) return Promise.reject(new Error('Set Zunex.conf.set({ inBuildSrc: "https://..." }) before connecting.'));
+    if (!source) return Promise.reject(new Error('No browser InBuild wallet found. Set inBuildSrc to load one.'));
     inBuildLoad = new Promise(function (resolve, reject) {
       var script = document.querySelector('script[data-zunex-inbuild]') || document.createElement('script');
       script.onload = function () {
@@ -56,10 +58,16 @@
     function closeModal() { modalRoot.innerHTML = ''; }
     function renderAccount() {
       if (!account) { slot.innerHTML = '<button class="connect-button compact" data-zunex-open>Connect wallet <span>↗</span></button>'; slot.querySelector('[data-zunex-open]').onclick = openModal; return; }
-      slot.innerHTML = '<div class="zunex-account-menu"><button class="zunex-account-button" data-toggle><span class="zunex-dot"></span>' + escapeHtml(shortAddress(account.address)) + chevronIcon + '</button><div class="zunex-popover" data-popover hidden><img class="zunex-blockie" src="https://blockies.vercel.app/address:' + encodeURIComponent(account.address) + '" alt="Wallet identicon"><div class="zunex-full-address"><span>Connected wallet</span><strong>' + escapeHtml(account.address) + '</strong></div><div class="zunex-actions"><button class="zunex-icon-action" data-copy title="Copy address" aria-label="Copy address">' + copyIcon + '</button><button class="zunex-icon-action zunex-disconnect" data-disconnect title="Disconnect wallet" aria-label="Disconnect wallet">↪</button></div></div></div>';
+      slot.innerHTML = '<div class="zunex-account-menu"><button class="zunex-account-button" data-toggle><span class="zunex-dot"></span>' + escapeHtml(shortAddress(account.address)) + chevronIcon + '</button><div class="zunex-popover" data-popover hidden><img class="zunex-blockie" src="https://blockies.vercel.app/address:' + encodeURIComponent(account.address) + '" alt="Wallet identicon"><div class="zunex-full-address"><span>Connected wallet</span><strong>' + escapeHtml(account.address) + '</strong></div><div class="zunex-actions"><button class="zunex-icon-action" data-copy aria-label="Copy address">' + copyIcon + '</button><button class="zunex-icon-action zunex-disconnect" data-disconnect aria-label="Disconnect wallet">↪</button></div></div></div>';
       slot.querySelector('[data-toggle]').onclick = function () { var popover = slot.querySelector('[data-popover]'); popover.hidden = !popover.hidden; };
       slot.querySelector('[data-copy]').onclick = function () { if (navigator.clipboard) navigator.clipboard.writeText(account.address); };
       slot.querySelector('[data-disconnect]').onclick = function () { account = null; renderAccount(); };
+      document.addEventListener('pointerdown', function closeAccount(event) {
+        if (!slot.contains(event.target)) {
+          var popover = slot.querySelector('[data-popover]');
+          if (popover) popover.hidden = true;
+        }
+      });
     }
     function connect(uuid) {
       var error = modalRoot.querySelector('[data-error]');
