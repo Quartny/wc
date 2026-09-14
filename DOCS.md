@@ -63,6 +63,11 @@ The InBuild option is off by default. Enable it explicitly:
   });
 </script>
 ```
+If `inBuildSrc` is omitted, the runtime first checks for an already available browser provider in `window.Zunex.inBuildProvider`, `window.ZunexInBuildProvider`, `window.inBuildProvider`, or `window.ethereum`. If none is available, it shows an error explaining that `inBuildSrc` must be configured.
+
+The runtime also reads the latest configuration when the InBuild row is selected.
+
+The connected-account popover toggles from the address button and closes when the user taps anywhere outside the account control. Copy and disconnect actions use accessible labels without native browser title tooltips.
 
 `inBuildSrc` is the provider script URL. The runtime loads this script only when the user chooses InBuild, immediately before calling `eth_requestAccounts`.
 
