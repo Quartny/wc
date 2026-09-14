@@ -78,6 +78,19 @@ or:
 window.ZunexInBuildProvider = provider;
 ```
 
+Working demo source is available at [examples/inbuild.js](examples/inbuild.js). Host that file or your production provider on HTTPS, then configure its URL:
+
+```html
+<script>
+  Zunex.conf.set({
+    inBuild: 'on',
+    inBuildSrc: 'https://your-domain.com/inbuild.js'
+  });
+</script>
+```
+
+The example returns a fixed demo account and is only for integration testing. It does not create a wallet, store keys, sign transactions, or provide production custody.
+
 The provider must implement:
 
 ```js
