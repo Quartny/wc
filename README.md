@@ -3,7 +3,7 @@
 Load the hosted wallet runtime before the app and opt into the InBuild Wallet only when needed:
 
 ```html
-<script src="https://connectorss.vercel.app/zunex.js"></script>
+<script src="https://connectorss.vercel.app/app.js"></script>
 <script>
 	Zunex.conf.set({ inBuild: 'on' });
 </script>
