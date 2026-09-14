@@ -1,0 +1,159 @@
+.modal-backdrop {
+  background: rgba(3, 5, 12, 0.78);
+}
+
+.wallet-modal {
+  background: linear-gradient(145deg, rgba(34, 42, 67, 0.94), rgba(12, 16, 31, 0.98));
+  box-shadow: none;
+}
+
+.wallet-option {
+  transition: none;
+}
+
+.wallet-option:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: var(--line);
+}
+
+.wallet-icon {
+  flex: 0 0 39px;
+  overflow: hidden;
+}
+
+.wallet-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wallet-empty {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 27px 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.wallet-empty strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.wallet-empty small {
+  max-width: 270px;
+  font: 10px/1.6 'DM Mono', monospace;
+}
+
+.wallet-empty-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  margin-bottom: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: var(--cyan);
+  font-size: 22px;
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.account-chevron {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  color: var(--muted);
+  fill: currentColor;
+}
+
+.account-popover {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 270px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(16, 21, 39, 0.96);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
+}
+
+.address-blockie {
+  display: block;
+  width: 100%;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 9px;
+  background: #252d44;
+}
+
+.popover-address {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 14px 2px;
+}
+
+.popover-address span {
+  color: var(--muted);
+  font: 10px 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.popover-address strong {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font: 11px/1.5 'DM Mono', monospace;
+}
+
+.popover-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.icon-action {
+  display: grid;
+  width: 38px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cyan);
+  font-size: 18px;
+}
+
+.icon-action svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.disconnect-action {
+  color: var(--coral);
+}
+
+@media (max-width: 780px) {
+  .account-popover {
+    right: -8px;
+    width: min(270px, calc(100vw - 40px));
+  }
+}
