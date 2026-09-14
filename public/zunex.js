@@ -6,7 +6,7 @@
   var account = null;
   var mounted = false;
   var inBuildLoad = null;
-  var inBuild = { uuid: 'zunex-inbuild', name: 'Zunex InBuild Wallet', rdns: 'cdn.zunex.wallet', icon: 'zunex' };
+  var inBuild = { uuid: 'zunex-inbuild', name: 'InBuild Wallet', rdns: 'cdn.zunex.wallet', icon: 'zunex' };
   var copyIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h16v16H0z" fill="none"/><path d="M5 6H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1h1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1zm7-4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM8 3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z"/></svg>';
   var chevronIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 17.59l-4.29-4.3l-1.42 1.42l5.71 5.7l-5.71 5.7l-1.42-1.42z"/></svg>';
     var closeIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h16v16H0z" fill="none"/><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m10.25 5.75-4.5 4.5m0-4.5 4.5 4.5"/><circle cx="8" cy="8" r="6.25"/></g></svg>';
@@ -22,7 +22,7 @@
     if (browserProvider) return Promise.resolve(browserProvider);
     if (inBuildLoad) return inBuildLoad;
     var source = config.inBuildSrc || runtime.inBuildSrc;
-    if (!source) return Promise.reject(new Error('No browser InBuild wallet found. Set inBuildSrc to load one.'));
+    if (!source) return Promise.reject(new Error('No wallet was found in this browser. Open this page inside your wallet or InBuild browser, then try again.'));
     inBuildLoad = new Promise(function (resolve, reject) {
       var script = document.querySelector('script[data-zunex-inbuild]') || document.createElement('script');
       script.onload = function () {
