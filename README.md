@@ -11,4 +11,4 @@ Load the hosted wallet runtime before the app and opt into the BuildIn Wallet on
 
 The option is hidden by default. Browser extension wallets are discovered through EIP-6963 and use the icon supplied by each wallet. The BuildIn entry is only shown after the CDN config is set to `on`.
 
-Open the rendered developer documentation at [`/developers`](/developers).
+Open the rendered developer documentation at [`/developers`](https://connectorss.vercel.app/developers).
