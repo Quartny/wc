@@ -6,7 +6,7 @@
       <p class="hero-text">wc app brings your users’ wallets together in one calm, secure connection layer.</p>
       <div class="actions">
         <div id="account-slot">
-          <button class="connect-button compact" data-wc-open>Connect wallet <span></span></button>
+          <button class="connect-button compact" data-wc-open>Connect wallet</button>
         </div>
         <RouterLink class="docs" to="/developers">Read the docs <span>→</span></RouterLink>
       </div>

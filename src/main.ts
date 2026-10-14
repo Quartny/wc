@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import './wc.ts';
 import App from './App.vue';
 import HomePage from './index.vue';
 import DocsPage from './DocsPage.vue';
