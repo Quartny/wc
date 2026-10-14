@@ -1,10 +1,30 @@
+type WalletConfig = { buildIn: 'on' | 'off'; buildInSrc?: string };
+type WalletMetadata = { uuid: string; name: string; rdns?: string; icon?: string };
+type WalletProvider = { request: (request: { method: string; params?: any[] }) => Promise<any> };
+type MountOptions = { accountSlot?: string; modalRoot?: string; count?: string };
+type WcRuntime = {
+  buildInSrc?: string;
+  buildInProvider?: WalletProvider;
+  conf?: { get: () => WalletConfig; set: (next: Partial<WalletConfig>) => void };
+  mount?: (options: MountOptions) => void;
+};
+
+declare global {
+  interface Window {
+    wc?: WcRuntime;
+    wcBuildInProvider?: WalletProvider;
+    buildInProvider?: WalletProvider;
+    ethereum?: WalletProvider;
+  }
+}
+
 (function (window, document) {
   'use strict';
-  var config = { buildIn: 'off' };
-  var runtime = window.wc || {};
-  var wallets = new Map();
-  var providers = new Map();
-  var account = null;
+  var config: WalletConfig = { buildIn: 'off' };
+  var runtime: WcRuntime = window.wc || {};
+  var wallets = new Map<string, WalletMetadata>();
+  var providers = new Map<string, WalletProvider>();
+  var account: { address: string } | null = null;
   var mounted = false;
   var buildInLoad = null;
   var buildIn = { uuid: 'wc-buildin', name: 'BuildIn Wallet', rdns: 'cdn.wc.wallet', icon: 'wc' };
@@ -18,17 +38,17 @@
   function escapeHtml(value) { return String(value).replace(/[&<>"']/g, function (char) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[char]; }); }
   function shortAddress(value) { return value.length > 10 ? value.slice(0, 5) + '...' + value.slice(-5) : value; }
   function getWallets() { return Array.from(wallets.values()).concat(config.buildIn === 'on' ? [buildIn] : []); }
-  function findBrowserBuildInProvider() { return window.wcBuildInProvider || window.buildInProvider || window.ethereum; }
+  function findBrowserBuildInProvider(): WalletProvider | undefined { return runtime.buildInProvider || window.wcBuildInProvider || window.buildInProvider || window.ethereum; }
   function loadBuildInProvider() {
-    var browserProvider = window.wc.buildInProvider || findBrowserBuildInProvider();
+    var browserProvider = findBrowserBuildInProvider();
     if (browserProvider) return Promise.resolve(browserProvider);
     if (buildInLoad) return buildInLoad;
     var source = config.buildInSrc || runtime.buildInSrc;
     if (!source) return Promise.reject(new Error('No wallet was found in this browser. Open this page inside your wallet or BuildIn browser, then try again.'));
     buildInLoad = new Promise(function (resolve, reject) {
-      var script = document.querySelector('script[data-wc-build-in]') || document.createElement('script');
+      var script = (document.querySelector('script[data-wc-build-in]') as HTMLScriptElement | null) || document.createElement('script');
       script.onload = function () {
-        var provider = window.wc.buildInProvider || window.wcBuildInProvider;
+        var provider = findBrowserBuildInProvider();
         if (provider) resolve(provider);
         else reject(new Error('BuildIn provider loaded without an EIP-1193 provider.'));
       };
@@ -50,8 +70,8 @@
     style.textContent += '.wc-backdrop{overflow-y:auto;padding:clamp(14px,4vw,32px);background:rgba(0,0,0,.28);backdrop-filter:blur(22px) saturate(125%);-webkit-backdrop-filter:blur(22px) saturate(125%)}.wc-modal{width:min(100%,420px);max-height:calc(100dvh - 2 * clamp(14px,4vw,32px));overflow-y:auto;padding:clamp(20px,4vw,30px);border-color:rgba(255,255,255,.18);background:linear-gradient(145deg,rgba(22,27,38,.86),rgba(7,10,16,.78));box-shadow:0 24px 80px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(28px) saturate(135%);-webkit-backdrop-filter:blur(28px) saturate(135%)}.wc-wallet-list{width:calc(100% - 18px);margin-inline:auto}.wc-wallet-list[hidden],.wc-loading[hidden]{display:none!important}.wc-wallet{padding:12px 13px;background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.1)}.wc-wallet-icon{width:36px;height:36px;flex-basis:36px}.wc-wallet-info{min-width:0}.wc-wallet-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wc-wallet:focus,.wc-wallet:focus-visible,.wc-close:focus,.wc-close:focus-visible,.wc-icon-action:focus,.wc-icon-action:focus-visible{outline:none;box-shadow:none}.wc-loading{display:grid;min-height:180px;place-items:center;color:#83d8d0}.wc-loading svg{width:42px;height:42px}@media(max-width:480px){.wc-backdrop{align-items:center;padding:12px}.wc-modal{max-height:calc(100dvh - 24px);border-radius:15px}.wc-wallet-list{width:100%}.wc-wallet{gap:10px;padding:11px}.wc-subtitle{margin-bottom:18px}}';
     document.head.appendChild(style);
   }
-  function walletIcon(wallet) { return wallet.icon === 'wc' ? '<span class="wc-wallet-icon wc-buildin">' + buildInIcon + '</span>' : '<span class="wc-wallet-icon">' + (wallet.icon ? '<img src="' + escapeHtml(wallet.icon) + '" alt="">' : escapeHtml(wallet.name.slice(0, 1))) + '</span>'; }
-  function mount(options) {
+  function walletIcon(wallet: WalletMetadata) { return wallet.icon === 'wc' ? '<span class="wc-wallet-icon wc-buildin">' + buildInIcon + '</span>' : '<span class="wc-wallet-icon">' + (wallet.icon ? '<img src="' + escapeHtml(wallet.icon) + '" alt="">' : escapeHtml(wallet.name.slice(0, 1))) + '</span>'; }
+  function mount(options: MountOptions) {
     if (mounted) return;
     mounted = true;
     addStyles();
@@ -113,7 +133,9 @@
     window.addEventListener('eip6963:announceProvider', function (event) { var detail = event.detail; if (!detail || !detail.info || !detail.provider) return; wallets.set(detail.info.uuid, detail.info); providers.set(detail.info.uuid, detail.provider); if (count) count.textContent = wallets.size; });
     window.dispatchEvent(new Event('eip6963:requestProvider'));
   }
-  runtime.conf = { get: function () { return config; }, set: function (next) { config = Object.assign({}, config, next); window.dispatchEvent(new CustomEvent('wc:config', { detail: config })); } };
+  runtime.conf = { get: function () { return config; }, set: function (next: Partial<WalletConfig>) { config = Object.assign({}, config, next); window.dispatchEvent(new CustomEvent('wc:config', { detail: config })); } };
   runtime.mount = mount;
   window.wc = runtime;
 }(window, document));
+
+export {};

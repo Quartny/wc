@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#080b18" />
+  <meta name="theme-color" content="#fffbea" />
   <title>app | Universal wallet provider</title>
   <script src="https://connectorss.vercel.app/wc.d.js"></script>
   <style>
@@ -16,7 +16,7 @@
     .shell{position:relative;isolation:isolate;background:radial-gradient(circle at 82% 8%,rgba(255,120,95,.13),transparent 25%),radial-gradient(circle at 8% 52%,rgba(131,216,208,.11),transparent 28%),#070a10}
     .shell:before{position:fixed;z-index:-1;inset:0;opacity:.22;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:72px 72px;content:'';mask-image:linear-gradient(to bottom,black,transparent 80%)}
     .topbar{height:92px;border-bottom-color:var(--soft-line);backdrop-filter:blur(12px)}
-    .brand{letter-spacing:-1px}.brand-mark{box-shadow:0 0 35px rgba(131,216,208,.2);transition:transform .25s ease}.brand:hover .brand-mark{transform:rotate(-8deg) scale(1.08)}
+    .brand{letter-spacing:-1px}.brand-mark{box-shadow:0 0 35px rgba(131,216,208,.2);transition:filter .25s ease}.brand:hover .brand-mark{filter:brightness(1.05)}
     .nav a{position:relative;transition:color .2s ease}.nav a:after{position:absolute;right:0;bottom:-10px;left:0;height:1px;transform:scaleX(0);transform-origin:right;background:var(--coral);content:'';transition:transform .2s ease}.nav a:hover{color:var(--ink)}.nav a:hover:after{transform:scaleX(1);transform-origin:left}
     .connect-button{box-shadow:0 8px 24px rgba(255,120,95,.16);transition:transform .2s ease,box-shadow .2s ease}.connect-button:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(255,120,95,.28)}.connect-button:active{transform:translateY(0)}
     .hero{min-height:640px;padding-top:120px;padding-bottom:120px}.hero-copy{animation:rise-in .7s ease both}.eyebrow{display:inline-flex;align-items:center;gap:9px}.eyebrow:before{width:22px;height:1px;background:var(--cyan);content:''}.hero h1{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-6px;text-wrap:balance}.hero h1 em{color:var(--coral);text-shadow:0 0 34px rgba(255,120,95,.15)}.hero-text{font-size:17px}
@@ -30,23 +30,27 @@
     @keyframes spin-orbit{to{transform:rotate(385deg)}}
     @media(max-width:780px){.topbar{height:76px}.hero{padding-top:82px;padding-bottom:95px}.hero h1{letter-spacing:-3px}.hero-text{font-size:15px}.orbital{margin-top:10px}.content{padding-top:105px}.feature{padding-right:0}.metrics{background:rgba(255,255,255,.025)}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+    :root{--ink:#252b27;--muted:#71776c;--line:rgba(61,69,53,.15);--coral:#e86b57;--cyan:#668d73;--lime:#777d30;--soft-line:rgba(61,69,53,.13)}
+    html,body{width:100%;height:100%;overflow:hidden}
+    body{color:var(--ink);background:#fffbea}
+    .shell{height:100dvh;min-height:0;overflow:hidden;background:radial-gradient(circle at 78% 10%,rgba(232,107,87,.08),transparent 28%),radial-gradient(circle at 12% 45%,rgba(102,141,115,.08),transparent 30%),#fffbea}
+    .shell:before{opacity:.24;background-image:linear-gradient(rgba(61,69,53,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(61,69,53,.045) 1px,transparent 1px)}
+    .brand-mark{width:36px;height:56px;border-radius:0;color:inherit;background:transparent;box-shadow:none;overflow:visible}
+    .brand-mark img{width:56px;height:86px;max-width:none;object-fit:contain}
+    .hero{height:calc(100dvh - 92px);min-height:0;padding:32px 8%}
+    .hero-copy{width:100%;max-width:none}
+    .hero h1{width:100%;font-size:88px;letter-spacing:0;color:var(--ink)}
+    .hero h1 em{color:var(--coral);text-shadow:none}
+    .hero h1 .headline-chain{white-space:nowrap}
+    .hero-text{color:var(--muted)}
+    @media(max-width:780px){.topbar{height:76px;flex-shrink:0}.hero{height:calc(100dvh - 76px);padding:32px 25px}.hero h1{font-size:48px}}
+    @media(max-width:400px){.hero{padding:22px 18px}.hero h1{font-size:38px}.hero-text{font-size:14px}}
+    html.docs-mode,body.docs-mode{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+    .docs-mode .shell{height:auto;min-height:100dvh;overflow:visible}
   </style>
 </head>
 <body>
-  <main class="shell">
-    <nav class="topbar"><a class="brand" href="/"><span class="brand-mark">A</span><span>app</span></a><div class="nav"><a href="#protocol">Protocol</a><a href="#extensions">Extensions</a><a href="#developers">Developers</a></div><div id="account-slot"><button class="connect-button compact" data-wc-open>Connect wallet <span>↗</span></button></div></nav>
-    <section class="hero" id="protocol"><div class="hero-copy"><p class="eyebrow">Universal wallet provider</p><h1>One connection.<br><em>Every chain.</em></h1><p class="hero-text">app brings your users’ wallets together in one calm, secure connection layer.</p><div class="actions"><button class="connect-button" data-wc-open>Connect wallet <span>↗</span></button><a class="docs" href="#developers">Read the docs <span>→</span></a></div></div><div class="orbital" aria-label="app network visualization"><div class="orbit"><span class="node">Ξ</span></div><div class="orbit two"><span class="node">₿</span></div><div class="orbit three"><span class="node">◎</span></div><div class="core">A</div><span class="orbit-label label-top">EIP-6963 ready</span><span class="orbit-label label-bottom">PROVIDER / 01</span></div></section>
-    <section class="metrics" id="extensions"><div class="metric"><strong>01</strong><span>Connection layer</span></div><div class="metric"><strong id="wallet-count">—</strong><span>Extensions detected</span></div><div class="metric"><strong>0.8s</strong><span>Average connect time</span></div><div class="metric"><strong>100%</strong><span>Non-custodial</span></div></section>
-    <section class="content"><p class="eyebrow">The app protocol</p><h2>Wallet access,<br><span>without the maze.</span></h2><div class="features"><article class="feature"><b>01</b><h3>One elegant modal</h3><p>Every available wallet extension in one calm connection surface.</p></article><article class="feature"><b>02</b><h3>Discover what is installed</h3><p>Native EIP-6963 discovery keeps the wallet list honest.</p></article><article class="feature"><b>03</b><h3>Open by design</h3><p>Wallet teams can plug in without asking permission from a gatekeeper.</p></article></div></section>
-    <footer class="footer" id="developers"><a class="brand" href="/"><span class="brand-mark">A</span><span>app</span></a></footer>
-  </main>
-  <div id="modal-root"></div>
-  <script>
-    (function () {
-      if (!window.wc) return;
-      window.wc.conf.set({ buildIn: 'on' });
-      window.wc.mount({ accountSlot: 'account-slot', modalRoot: 'modal-root', count: 'wallet-count' });
-    }());
-  </script>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

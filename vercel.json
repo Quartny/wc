@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/developers/:path*", "destination": "/index.html" }
+  ]
+}
