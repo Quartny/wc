@@ -1,6 +1,6 @@
 # App Wallet Runtime
 
-This project is a static wallet demo powered by the hosted runtime at `https://unwc-phi.vercel.app/zunex.js`.
+This project is a static wallet demo powered by the hosted runtime at `https://connectorss.vercel.app/wc.d.js`.
 
 ## 1. What You Get
 
@@ -8,7 +8,7 @@ The runtime provides:
 
 - EIP-6963 wallet extension discovery.
 - Wallet icons supplied by each extension.
-- An optional InBuild Wallet entry.
+- An optional BuildIn Wallet entry.
 - A responsive glass wallet picker.
 - Direct wallet names without RDNS labels.
 - Connected address shortened to the first five and last five characters.
@@ -22,7 +22,7 @@ The runtime provides:
 Load the runtime before calling any App API:
 
 ```html
-<script src="https://unwc-phi.vercel.app/zunex.js"></script>
+<script src="https://connectorss.vercel.app/wc.d.js"></script>
 ```
 
 Add two mount targets to your page:
@@ -37,7 +37,7 @@ Mount the runtime after those elements exist:
 
 ```html
 <script>
-  Zunex.mount({
+  wc.mount({
     accountSlot: 'account-slot',
     modalRoot: 'modal-root',
     count: 'wallet-count'
@@ -45,51 +45,53 @@ Mount the runtime after those elements exist:
 </script>
 ```
 
-Any element with `data-zunex-open` opens the wallet picker:
+Any element with `data-wc-open` opens the wallet picker:
 
 ```html
-<button data-zunex-open>Connect wallet</button>
+<button data-wc-open>Connect wallet</button>
 ```
 
-## 3. InBuild Wallet
+## 3. BuildIn Wallet
 
-The InBuild option is off by default. Enable it explicitly:
+The BuildIn option is off by default. Enable it explicitly:
 
 ```html
 <script>
-  Zunex.conf.set({
-    inBuild: 'on',
-    inBuildSrc: 'https://cdn.example.com/inbuild.js'
+  wc.conf.set({
+    buildIn: 'on',
+    buildInSrc: 'https://cdn.example.com/buildin.js'
   });
 </script>
 ```
-If `inBuildSrc` is omitted, the runtime first checks for an already available browser provider in `window.Zunex.inBuildProvider`, `window.ZunexInBuildProvider`, `window.inBuildProvider`, or `window.ethereum`. If none is available, it shows an error explaining that `inBuildSrc` must be configured.
+If `buildInSrc` is omitted, the runtime first checks for an already available browser provider in `window.wc.buildInProvider`, `window.wcBuildInProvider`, `window.buildInProvider`, or `window.ethereum`. If none is available, it shows an error explaining that `buildInSrc` must be configured.
 
-The runtime also reads the latest configuration when the InBuild row is selected.
+When neither a browser provider nor `buildInSrc` is available, the connection dialog guides the user to reopen the page inside a wallet or BuildIn browser. This prevents a wallet-less in-app browser from failing with an unexplained provider error.
+
+The runtime also reads the latest configuration when the BuildIn row is selected.
 
 The connected-account popover toggles from the address button and closes when the user taps anywhere outside the account control. Copy and disconnect actions use accessible labels without native browser title tooltips.
 
-`inBuildSrc` is the provider script URL. The runtime loads this script only when the user chooses InBuild, immediately before calling `eth_requestAccounts`.
+`buildInSrc` is the provider script URL. The runtime loads this script only when the user chooses BuildIn, immediately before calling `eth_requestAccounts`.
 
 The loaded script must expose an EIP-1193 provider using either global:
 
 ```js
-window.Zunex.inBuildProvider = provider;
+window.wc.buildInProvider = provider;
 ```
 
 or:
 
 ```js
-window.ZunexInBuildProvider = provider;
+window.wcBuildInProvider = provider;
 ```
 
-Working demo source is available at [examples/inbuild.js](examples/inbuild.js). Host that file or your production provider on HTTPS, then configure its URL:
+Working demo source is available at [examples/buildin.js](examples/buildin.js). Host that file or your production provider on HTTPS, then configure its URL:
 
 ```html
 <script>
-  Zunex.conf.set({
-    inBuild: 'on',
-    inBuildSrc: 'https://your-domain.com/inbuild.js'
+  wc.conf.set({
+    buildIn: 'on',
+    buildInSrc: 'https://your-domain.com/buildin.js'
   });
 </script>
 ```
@@ -104,17 +106,17 @@ provider.request({ method: 'eth_requestAccounts' });
 
 If the script fails to load, or does not expose a provider, the modal displays an actionable error instead of silently failing.
 
-If the provider script is already loaded before the user clicks InBuild, it can register directly:
+If the provider script is already loaded before the user clicks BuildIn, it can register directly:
 
 ```html
 <script>
-  window.Zunex.inBuildProvider = {
+  window.wc.buildInProvider = {
     request: async ({ method }) => {
       if (method === 'eth_requestAccounts') return ['0x1234567890123456789012345678901234567890'];
       throw new Error('Unsupported method');
     }
   };
-  Zunex.conf.set({ inBuild: 'on' });
+  wc.conf.set({ buildIn: 'on' });
 </script>
 ```
 
@@ -123,30 +125,30 @@ If the provider script is already loaded before the user clicks InBuild, it can 
 Read configuration:
 
 ```js
-const current = Zunex.conf.get();
+const current = wc.conf.get();
 ```
 
-Enable InBuild:
+Enable BuildIn:
 
 ```js
-Zunex.conf.set({ inBuild: 'on' });
+wc.conf.set({ buildIn: 'on' });
 ```
 
-Disable InBuild:
+Disable BuildIn:
 
 ```js
-Zunex.conf.set({ inBuild: 'off' });
+wc.conf.set({ buildIn: 'off' });
 ```
 
 Change the lazy-loaded provider URL:
 
 ```js
-Zunex.conf.set({
-  inBuildSrc: 'https://cdn.example.com/inbuild.js'
+wc.conf.set({
+  buildInSrc: 'https://cdn.example.com/buildin.js'
 });
 ```
 
-Configuration should be set before `Zunex.mount()` when possible. The runtime also reads the latest configuration when the InBuild row is selected.
+Configuration should be set before `wc.mount()` when possible. The runtime also reads the latest configuration when the BuildIn row is selected.
 
 ## 5. EIP-6963 Extensions
 
@@ -212,7 +214,7 @@ npm install
 npm run build
 ```
 
-The build produces `dist/index.html` and `dist/zunex.js`.
+The build produces `dist/index.html` and `dist/wc.d.js`.
 
 Deploy the repository to Vercel with:
 
@@ -239,17 +241,17 @@ npm run preview
 
 ## 10. Troubleshooting
 
-### InBuild provider could not load
+### BuildIn provider could not load
 
-Set a real JavaScript URL in `inBuildSrc` and confirm that URL returns JavaScript, not an HTML error page:
+Set a real JavaScript URL in `buildInSrc` and confirm that URL returns JavaScript, not an HTML error page:
 
 ```bash
-curl -I https://cdn.example.com/inbuild.js
+curl -I https://cdn.example.com/buildin.js
 ```
 
-### InBuild provider loaded without an EIP-1193 provider
+### BuildIn provider loaded without an EIP-1193 provider
 
-Expose `window.Zunex.inBuildProvider` or `window.ZunexInBuildProvider` from the loaded script.
+Expose `window.wc.buildInProvider` or `window.wcBuildInProvider` from the loaded script.
 
 ### Extension does not appear
 
@@ -268,6 +270,6 @@ Clipboard access requires a secure context such as HTTPS or localhost. Check bro
 - Never put private keys or seed phrases in the page.
 - The runtime only requests accounts through the wallet provider.
 - Keep provider scripts on trusted HTTPS origins.
-- Validate and restrict any custom `inBuildSrc` URL in production.
+- Validate and restrict any custom `buildInSrc` URL in production.
 - Treat wallet-provided metadata as untrusted display data.
 - Do not auto-connect accounts without explicit user action.

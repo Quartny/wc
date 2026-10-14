@@ -1,0 +1,119 @@
+(function (window, document) {
+  'use strict';
+  var config = { buildIn: 'off' };
+  var runtime = window.wc || {};
+  var wallets = new Map();
+  var providers = new Map();
+  var account = null;
+  var mounted = false;
+  var buildInLoad = null;
+  var buildIn = { uuid: 'wc-buildin', name: 'BuildIn Wallet', rdns: 'cdn.wc.wallet', icon: 'wc' };
+  var copyIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h16v16H0z" fill="none"/><path d="M5 6H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1h1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1zm7-4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM8 3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z"/></svg>';
+  var chevronIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 17.59l-4.29-4.3l-1.42 1.42l5.71 5.7l-5.71 5.7l-1.42-1.42z"/></svg>';
+    var closeIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h16v16H0z" fill="none"/><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m10.25 5.75-4.5 4.5m0-4.5 4.5 4.5"/><circle cx="8" cy="8" r="6.25"/></g></svg>';
+    var loadingIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="12" cy="3.5" r="1.5"><animate attributeName="fill-opacity" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="16.25" cy="4.64" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.2s" to="1"/><animate attributeName="fill-opacity" begin="0.2s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="19.36" cy="7.75" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.4s" to="1"/><animate attributeName="fill-opacity" begin="0.4s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="20.5" cy="12" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.6s" to="1"/><animate attributeName="fill-opacity" begin="0.6s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="19.36" cy="16.25" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.8s" to="1"/><animate attributeName="fill-opacity" begin="0.8s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="16.25" cy="19.36" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="1s" to="1"/><animate attributeName="fill-opacity" begin="1s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="12" cy="20.5" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.2s" to="1"/><animate attributeName="fill-opacity" begin="1.2s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="7.75" cy="19.36" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.4s" to="1"/><animate attributeName="fill-opacity" begin="1.4s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="4.64" cy="16.25" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.6s" to="1"/><animate attributeName="fill-opacity" begin="1.6s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="3.5" cy="12" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.8s" to="1"/><animate attributeName="fill-opacity" begin="1.8s" dur="2.4s" keyTimes="0;0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="4.64" cy="7.75" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="2s" to="1"/><animate attributeName="fill-opacity" begin="2s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle><circle cx="7.75" cy="4.64" r="1.5" opacity="0"><set fill="freeze" attributeName="opacity" begin="2.2s" to="1"/><animate attributeName="fill-opacity" begin="2.2s" dur="2.4s" keyTimes="0;0.125;0.25;1" repeatCount="indefinite" values="1;1;0;0"/></circle></g></svg>';
+    var buildInIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h20v20H0z" fill="none"/><path fill="currentColor" d="M1 4.25a3.73 3.73 0 0 1 2.25-.75h13.5c.844 0 1.623.279 2.25.75A2.25 2.25 0 0 0 16.75 2H3.25A2.25 2.25 0 0 0 1 4.25m0 3a3.73 3.73 0 0 1 2.25-.75h13.5c.844 0 1.623.279 2.25.75A2.25 2.25 0 0 0 16.75 5H3.25A2.25 2.25 0 0 1 1 7.25M7 8a1 1 0 0 1 1 1a2 2 0 1 0 4 0a1 1 0 0 1 1-1h3.75A2.25 2.25 0 0 1 19 10.25v5.5A2.25 2.25 0 0 1 16.75 18H3.25A2.25 2.25 0 0 1 1 15.75v-5.5A2.25 2.25 0 0 1 3.25 8z"/></svg>';
+    var externalIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 8l4 4l-4 4M7 8l4 4l-4 4"/></svg>';
+
+  function escapeHtml(value) { return String(value).replace(/[&<>"']/g, function (char) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[char]; }); }
+  function shortAddress(value) { return value.length > 10 ? value.slice(0, 5) + '...' + value.slice(-5) : value; }
+  function getWallets() { return Array.from(wallets.values()).concat(config.buildIn === 'on' ? [buildIn] : []); }
+  function findBrowserBuildInProvider() { return window.wcBuildInProvider || window.buildInProvider || window.ethereum; }
+  function loadBuildInProvider() {
+    var browserProvider = window.wc.buildInProvider || findBrowserBuildInProvider();
+    if (browserProvider) return Promise.resolve(browserProvider);
+    if (buildInLoad) return buildInLoad;
+    var source = config.buildInSrc || runtime.buildInSrc;
+    if (!source) return Promise.reject(new Error('No wallet was found in this browser. Open this page inside your wallet or BuildIn browser, then try again.'));
+    buildInLoad = new Promise(function (resolve, reject) {
+      var script = document.querySelector('script[data-wc-build-in]') || document.createElement('script');
+      script.onload = function () {
+        var provider = window.wc.buildInProvider || window.wcBuildInProvider;
+        if (provider) resolve(provider);
+        else reject(new Error('BuildIn provider loaded without an EIP-1193 provider.'));
+      };
+      script.onerror = function () { reject(new Error('Could not load the BuildIn provider. Set conf.buildInSrc to its CDN URL.')); };
+      if (!script.parentNode) {
+        script.src = source;
+        script.async = true;
+        script.dataset.wcBuildIn = 'true';
+        document.head.appendChild(script);
+      }
+    }).catch(function (error) { buildInLoad = null; throw error; });
+    return buildInLoad;
+  }
+  function addStyles() {
+    if (document.getElementById('wc-runtime-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'wc-runtime-styles';
+    style.textContent = '.wc-account-menu{position:relative}.wc-account-button{display:flex;align-items:center;gap:8px;padding:11px 15px;border:1px solid rgba(131,216,208,.3);border-radius:999px;background:rgba(131,216,208,.13);color:#83d8d0;font:12px monospace;cursor:pointer}.wc-dot{width:7px;height:7px;border-radius:50%;background:#83d8d0}.wc-chevron{width:16px;height:16px;fill:currentColor}.wc-popover{position:absolute;z-index:20;top:calc(100% + 12px);right:0;width:270px;padding:14px;border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(16,21,39,.97);box-shadow:0 18px 45px rgba(0,0,0,.32)}.wc-popover[hidden]{display:none}.wc-blockie{display:block;width:100%;height:92px;object-fit:cover;border-radius:9px;background:#252d44}.wc-full-address{display:flex;flex-direction:column;gap:7px;padding:14px 2px}.wc-full-address span{color:#9294a2;font:10px monospace;text-transform:uppercase}.wc-full-address strong{overflow-wrap:anywhere;color:#f5f3ec;font:11px/1.5 monospace}.wc-actions{display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}.wc-icon-action{display:grid;width:38px;height:34px;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:7px;background:rgba(255,255,255,.04);color:#83d8d0;cursor:pointer}.wc-icon-action svg{width:17px;height:17px;fill:currentColor}.wc-disconnect{color:#ff785f}.wc-backdrop{position:fixed;z-index:30;inset:0;display:grid;place-items:center;padding:20px;background:rgba(3,5,12,.78);backdrop-filter:blur(15px)}.wc-modal{width:min(100%,450px);padding:30px;border:1px solid rgba(255,255,255,.2);border-radius:18px;background:linear-gradient(145deg,rgba(34,42,67,.94),rgba(12,16,31,.98));color:#f5f3ec}.wc-modal-head{display:flex;justify-content:space-between}.wc-modal h2{margin:0;font:700 28px sans-serif;letter-spacing:-1px}.wc-close{display:grid;width:32px;height:32px;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(255,255,255,.05);color:inherit;cursor:pointer}.wc-close svg{width:18px;height:18px}.wc-subtitle{margin:9px 0 23px;color:#9294a2;font:12px sans-serif}.wc-wallet-list{display:grid;gap:9px}.wc-wallet{display:flex;align-items:center;gap:13px;width:100%;padding:14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.055);color:#f5f3ec;text-align:left;cursor:pointer}.wc-wallet-icon{display:grid;width:39px;height:39px;flex:0 0 39px;place-items:center;overflow:hidden;border-radius:11px;background:#31384e;font-weight:800}.wc-wallet-icon img{width:100%;height:100%;object-fit:cover}.wc-wallet-icon svg{width:21px;height:21px;fill:currentColor}.wc-buildin{color:#06141b;background:#83d8d0}.wc-wallet-info{display:flex;flex:1;flex-direction:column;gap:4px}.wc-wallet-info strong{font:700 13px sans-serif}.wc-arrow{display:grid;place-items:center;color:#ff785f}.wc-arrow svg{width:20px;height:20px}.wc-empty{padding:27px 18px;border:1px dashed rgba(255,255,255,.2);border-radius:10px;color:#9294a2;text-align:center;font:13px sans-serif}.wc-empty small{display:block;margin-top:8px;font:10px/1.6 monospace}.wc-error{margin:14px 0 0;color:#ff785f;font:11px sans-serif}@media(max-width:780px){.wc-popover{right:-8px;width:min(270px,calc(100vw - 40px))}.wc-modal{padding:24px}}';
+    style.textContent += '.wc-backdrop{overflow-y:auto;padding:clamp(14px,4vw,32px);background:rgba(0,0,0,.28);backdrop-filter:blur(22px) saturate(125%);-webkit-backdrop-filter:blur(22px) saturate(125%)}.wc-modal{width:min(100%,420px);max-height:calc(100dvh - 2 * clamp(14px,4vw,32px));overflow-y:auto;padding:clamp(20px,4vw,30px);border-color:rgba(255,255,255,.18);background:linear-gradient(145deg,rgba(22,27,38,.86),rgba(7,10,16,.78));box-shadow:0 24px 80px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(28px) saturate(135%);-webkit-backdrop-filter:blur(28px) saturate(135%)}.wc-wallet-list{width:calc(100% - 18px);margin-inline:auto}.wc-wallet-list[hidden],.wc-loading[hidden]{display:none!important}.wc-wallet{padding:12px 13px;background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.1)}.wc-wallet-icon{width:36px;height:36px;flex-basis:36px}.wc-wallet-info{min-width:0}.wc-wallet-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wc-wallet:focus,.wc-wallet:focus-visible,.wc-close:focus,.wc-close:focus-visible,.wc-icon-action:focus,.wc-icon-action:focus-visible{outline:none;box-shadow:none}.wc-loading{display:grid;min-height:180px;place-items:center;color:#83d8d0}.wc-loading svg{width:42px;height:42px}@media(max-width:480px){.wc-backdrop{align-items:center;padding:12px}.wc-modal{max-height:calc(100dvh - 24px);border-radius:15px}.wc-wallet-list{width:100%}.wc-wallet{gap:10px;padding:11px}.wc-subtitle{margin-bottom:18px}}';
+    document.head.appendChild(style);
+  }
+  function walletIcon(wallet) { return wallet.icon === 'wc' ? '<span class="wc-wallet-icon wc-buildin">' + buildInIcon + '</span>' : '<span class="wc-wallet-icon">' + (wallet.icon ? '<img src="' + escapeHtml(wallet.icon) + '" alt="">' : escapeHtml(wallet.name.slice(0, 1))) + '</span>'; }
+  function mount(options) {
+    if (mounted) return;
+    mounted = true;
+    addStyles();
+    var slot = document.getElementById(options.accountSlot || 'account-slot');
+    var modalRoot = document.getElementById(options.modalRoot || 'modal-root');
+    var count = document.getElementById(options.count || 'wallet-count');
+    var scrollLock = null;
+    function lockScroll() {
+      if (scrollLock) return;
+      scrollLock = { overflow: document.body.style.overflow, paddingRight: document.body.style.paddingRight };
+      var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + 'px';
+    }
+    function unlockScroll() {
+      if (!scrollLock) return;
+      document.body.style.overflow = scrollLock.overflow;
+      document.body.style.paddingRight = scrollLock.paddingRight;
+      scrollLock = null;
+    }
+    function closeModal() { modalRoot.innerHTML = ''; unlockScroll(); }
+    function renderAccount() {
+      if (!account) { slot.innerHTML = '<button class="connect-button compact" data-wc-open>Connect wallet <span>↗</span></button>'; slot.querySelector('[data-wc-open]').onclick = openModal; return; }
+      slot.innerHTML = '<div class="wc-account-menu"><button class="wc-account-button" data-toggle><span class="wc-dot"></span>' + escapeHtml(shortAddress(account.address)) + chevronIcon + '</button><div class="wc-popover" data-popover hidden><img class="wc-blockie" src="https://blockies.vercel.app/address:' + encodeURIComponent(account.address) + '" alt="Wallet identicon"><div class="wc-full-address"><span>Connected wallet</span><strong>' + escapeHtml(account.address) + '</strong></div><div class="wc-actions"><button class="wc-icon-action" data-copy aria-label="Copy address">' + copyIcon + '</button><button class="wc-icon-action wc-disconnect" data-disconnect aria-label="Disconnect wallet">↪</button></div></div></div>';
+      slot.querySelector('[data-toggle]').onclick = function () { var popover = slot.querySelector('[data-popover]'); popover.hidden = !popover.hidden; };
+      slot.querySelector('[data-copy]').onclick = function () { if (navigator.clipboard) navigator.clipboard.writeText(account.address); };
+      slot.querySelector('[data-disconnect]').onclick = function () { account = null; renderAccount(); };
+      document.addEventListener('pointerdown', function closeAccount(event) {
+        if (!slot.contains(event.target)) {
+          var popover = slot.querySelector('[data-popover]');
+          if (popover) popover.hidden = true;
+        }
+      });
+    }
+    function connect(uuid) {
+      var error = modalRoot.querySelector('[data-error]');
+      var walletList = modalRoot.querySelector('.wc-wallet-list');
+      var loading = modalRoot.querySelector('[data-loading]');
+      walletList.hidden = true;
+      loading.hidden = false;
+      error.textContent = '';
+      var providerPromise = uuid === buildIn.uuid ? loadBuildInProvider() : Promise.resolve(providers.get(uuid));
+      providerPromise.then(function (provider) {
+        if (!provider) throw new Error('Open the wallet extension and try again.');
+        return provider.request({ method: 'eth_requestAccounts' });
+      }).then(function (accounts) { account = { address: accounts[0] }; closeModal(); renderAccount(); }).catch(function (reason) { loading.hidden = true; walletList.hidden = false; error.textContent = reason.message || 'Could not connect to this wallet.'; });
+    }
+    function openModal() {
+      var list = getWallets();
+      lockScroll();
+      modalRoot.innerHTML = '<div class="wc-backdrop" data-backdrop><section class="wc-modal" role="dialog" aria-modal="true"><div class="wc-modal-head"><h2>Connect a wallet</h2><button class="wc-close" data-close aria-label="Close">' + closeIcon + '</button></div><p class="wc-subtitle">Choose an installed wallet to continue.</p><div class="wc-wallet-list">' + (list.length ? list.map(function (wallet) { return '<button class="wc-wallet" data-wallet="' + escapeHtml(wallet.uuid) + '">' + walletIcon(wallet) + '<span class="wc-wallet-info"><strong>' + escapeHtml(wallet.name) + '</strong></span><span class="wc-arrow">' + externalIcon + '</span></button>'; }).join('') : '<div class="wc-empty"><strong>No wallet extensions found</strong><small>Install a compatible wallet extension, then reopen this panel.</small></div>') + '</div><div class="wc-loading" data-loading hidden>' + loadingIcon + '</div><p class="wc-error" data-error></p></section></div>';
+      modalRoot.querySelector('[data-close]').onclick = closeModal;
+      modalRoot.querySelector('[data-backdrop]').onclick = function (event) { if (event.target === event.currentTarget) closeModal(); };
+      modalRoot.querySelectorAll('[data-wallet]').forEach(function (button) { button.onclick = function () { connect(button.dataset.wallet); }; });
+    }
+    renderAccount();
+    document.querySelectorAll('[data-wc-open]').forEach(function (button) { button.onclick = openModal; });
+    if (count) count.textContent = wallets.size || '—';
+    window.addEventListener('eip6963:announceProvider', function (event) { var detail = event.detail; if (!detail || !detail.info || !detail.provider) return; wallets.set(detail.info.uuid, detail.info); providers.set(detail.info.uuid, detail.provider); if (count) count.textContent = wallets.size; });
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+  }
+  runtime.conf = { get: function () { return config; }, set: function (next) { config = Object.assign({}, config, next); window.dispatchEvent(new CustomEvent('wc:config', { detail: config })); } };
+  runtime.mount = mount;
+  window.wc = runtime;
+}(window, document));
